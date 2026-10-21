@@ -3,16 +3,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--black:#050505;--white:#fff;--line:#111;--mono:"IBM Plex Mono",monospace;--display:"Barlow Condensed","Arial Narrow",Impact,sans-serif}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#fff;color:#050505}body{font-family:var(--mono);-webkit-font-smoothing:antialiased}button,textarea,input{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid #555;outline-offset:4px}.topbar{height:78px;padding:0 34px;display:flex;justify-content:space-between;align-items:center}.logo{font-family:var(--display);font-size:clamp(44px,7vw,72px);line-height:.8;font-weight:900;letter-spacing:-.075em;text-decoration:none;color:#000}.logo span{letter-spacing:-.1em}.pills{display:flex;gap:10px;align-items:center}.pill{height:34px;width:clamp(90px,12vw,170px);border-radius:30px;background:#000;border:0}.pill:last-child{width:78px}.page{max-width:1600px;margin:auto;padding:22px 2.7vw 45px}.hero{text-align:center;margin:5px 0 76px}.hero h1{font-family:var(--display);font-weight:900;font-size:clamp(48px,7.2vw,98px);line-height:.9;letter-spacing:-.035em;margin:0;text-transform:uppercase}.hero p{font:11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin:18px 0 0}.columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4.1vw;align-items:start}.column{min-width:0}.label{font-family:var(--display);font-weight:800;font-size:clamp(24px,3vw,38px);line-height:1;margin:0 0 41px 3px;text-transform:uppercase;letter-spacing:-.02em}.folder{position:relative;border:2px solid #000;min-width:0;margin-top:0;background:#fff}.folder:before{content:"";position:absolute;top:-31px;left:10%;width:22%;height:29px;border:2px solid #000;border-bottom:0;clip-path:polygon(0 100%,19% 0,81% 0,100% 100%);background:#fff}.folder:after{content:"";position:absolute;top:-2px;left:10%;width:22%;height:0;border-top:2px solid #000;pointer-events:none}.folder textarea{display:block;width:100%;height:430px;min-height:250px;resize:vertical;border:0;border-radius:0;background:transparent;color:#000;padding:35px 32px;font:clamp(17px,2.05vw,29px)/1.42 var(--mono);letter-spacing:.01em;outline:none}.folder textarea:focus-visible{outline:none}.folder:focus-within{outline:1px solid #777;outline-offset:5px}.draft .folder textarea{height:430px;display:flex}.draft textarea{display:flex;align-items:center}.folderfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid #111;font-size:10px;letter-spacing:.04em;min-height:44px}.mini{font-size:10px;letter-spacing:.08em;text-transform:uppercase}.plainbtn{background:#fff;border:1px solid #000;border-radius:0;padding:8px 12px;font:800 15px var(--display);text-transform:uppercase}.plainbtn:hover{background:#000;color:#fff}.enhance{display:flex;justify-content:center;margin:29px 0 0}.primary{background:#000;color:#fff;border:2px solid #000;padding:14px 24px;font:800 24px/1 var(--display);text-transform:uppercase;letter-spacing:.02em}.primary:hover{background:#fff;color:#000}.primary:disabled{opacity:.4;cursor:wait}.resulttools{display:flex;gap:8px;align-items:center}.expand{position:absolute;right:10px;bottom:10px;z-index:2;background:#000;color:#fff;border:0;border-radius:30px;padding:7px 12px;font:12px var(--mono)}.expand:hover{background:#333}.result{transition:all .2s}.result .folder textarea{padding-bottom:44px;height:430px}.result.expanded{position:fixed;inset:22px 22px 22px 50%;z-index:10;background:#fff;display:flex;flex-direction:column;padding:18px;box-shadow:0 0 0 100vmax #0003}.result.expanded .label{margin-bottom:26px}.result.expanded .folder{flex:1;display:flex;flex-direction:column;min-height:0}.result.expanded .folder textarea{height:auto;flex:1;min-height:0;resize:none}.result.expanded .folderfoot{flex-shrink:0}.result.expanded .expand{position:static;align-self:flex-end;margin-top:10px}.result.expanded .folder:before{top:-31px}.below{display:flex;justify-content:space-between;gap:15px;margin-top:42px;border-top:1px solid #000;padding-top:12px;font:10px var(--mono);text-transform:uppercase;letter-spacing:.07em}.message{font:11px var(--mono);margin:12px 0 0;min-height:15px}.message.error{font-weight:500}.loading{display:inline-block;width:7px;height:7px;background:#000;border-radius:50%;margin-right:7px;animation:pulse .7s infinite alternate}@keyframes pulse{to{opacity:.15}}@media(max-width:760px){.topbar{height:68px;padding:0 18px}.page{padding:22px 18px 35px}.hero{margin:5px 0 56px}.columns{grid-template-columns:1fr;gap:56px}.label{margin-bottom:37px}.folder textarea,.result .folder textarea{height:300px;font-size:18px;padding:25px 20px}.draft .folder textarea{height:300px}.result.expanded{inset:10px;left:10px;padding:16px}.result.expanded .folder textarea{height:auto}.below{flex-direction:column}.pills{gap:6px}.pill{height:26px;width:52px}.pill:last-child{width:32px}}@media(min-width:1200px){.folder textarea{height:430px}.result .folder textarea{height:430px}} 
-</style></head>
+.direction{display:flex;align-items:center;gap:12px;justify-content:center;margin:18px auto 0;max-width:440px;font:10px var(--mono);text-transform:uppercase;letter-spacing:.06em}.direction select{flex:1;min-width:0;background:#fff;border:1px solid #111;border-radius:0;padding:10px 12px;color:#000;font:11px var(--mono)}.direction select:focus-visible{outline:2px solid #555;outline-offset:3px}</style></head>
 <body><header class="topbar"><a class="logo" href="/" aria-label="Copy Rite home">[CR<span>/</span>]</a><div class="pills" aria-hidden="true"><span class="pill"></span><span class="pill"></span><span class="pill"></span></div></header>
 <main class="page"><section class="hero"><h1>Type to enhance:</h1></section>
 <section class="columns">
-<div class="column draft"><h2 class="label">Draft<span>\</span></h2><div class="folder"><textarea id="source" spellcheck="true" aria-label="Draft copy" placeholder="Type your rough copy here…"></textarea><div class="folderfoot"><span id="sourceCount">0 WORDS</span><button class="plainbtn" id="clearBtn">Clear</button></div></div><div class="enhance"><button class="primary" id="improveBtn">Enhance ↗</button></div></div>
+<div class="column draft"><h2 class="label">Draft<span>\</span></h2><div class="folder"><textarea id="source" spellcheck="true" aria-label="Draft copy" placeholder="Type your rough copy here…"></textarea><div class="folderfoot"><span id="sourceCount">0 WORDS</span><button class="plainbtn" id="clearBtn">Clear</button></div></div><div class="direction"><label for="direction">Direction</label><select id="direction"><option value="balanced">Best all-round</option><option value="concise">Shorter & sharper</option><option value="creative">More creative</option><option value="persuasive">More persuasive</option><option value="human">More human</option></select></div><div class="enhance"><button class="primary" id="improveBtn">Enhance ↗</button></div></div>
 <div class="column result" id="resultColumn"><h2 class="label">Master Copy<span>\</span></h2><div class="folder"><textarea id="output" aria-label="Master copy" placeholder="Your enhanced copy will appear here…" readonly></textarea><button class="expand" id="expandBtn">[Expand\]</button><div class="folderfoot"><span id="outputMeta">MASTER COPY / READY</span><div class="resulttools"><span id="outputCount">0 WORDS</span><button class="plainbtn" id="copyBtn">Copy</button></div></div></div><p id="message" class="message" aria-live="polite"></p></div>
 </section><footer class="below"><span>[CR/] — Copy Rite</span><span>Draft → Master Copy</span><span>Minimal tools. Better words.</span></footer></main>
 <script type="module">
-const $=id=>document.getElementById(id);let expanded=false, generator=null, modelPromise=null;
-const MODEL='onnx-community/Qwen2.5-0.5B-Instruct';
+const $=id=>document.getElementById(id);
+let expanded=false, generator=null, modelPromise=null;
+const MODEL='onnx-community/Qwen2.5-1.5B-Instruct';
+const directions={
+  balanced:'Write the strongest all-round version: clear, distinctive, natural, and memorable.',
+  concise:'Make it shorter and sharper. Remove every unnecessary word while preserving the important meaning.',
+  creative:'Find a more unexpected, ownable creative angle. Avoid familiar advertising tropes and generic wordplay.',
+  persuasive:'Make the benefit and reason to care more compelling without exaggerating or inventing claims.',
+  human:'Make it sound more human, conversational, warm, and specific. Avoid corporate or AI-sounding language.'
+};
 function count(s){return(s.trim().match(/\S+/g)||[]).length}
 function updateCounts(){$('sourceCount').textContent=count($('source').value)+' WORDS';$('outputCount').textContent=count($('output').value)+' WORDS'}
 function setMessage(text,error=false){$('message').textContent=text;$('message').classList.toggle('error',error)}
@@ -21,33 +29,40 @@ $('clearBtn').addEventListener('click',()=>{$('source').value='';updateCounts();
 $('expandBtn').addEventListener('click',()=>{expanded=!expanded;$('resultColumn').classList.toggle('expanded',expanded);$('expandBtn').textContent=expanded?'[Close ×]':'[Expand\\]';if(expanded)$('output').focus()});
 $('copyBtn').addEventListener('click',async()=>{if(!$('output').value){setMessage('Nothing to copy yet.');return}try{await navigator.clipboard.writeText($('output').value);setMessage('Copied to clipboard.')}catch(e){$('output').select();document.execCommand('copy');setMessage('Copied to clipboard.')}});
 async function loadModel(){
- if(generator)return generator;if(modelPromise)return modelPromise;
+ if(generator)return generator;
+ if(modelPromise)return modelPromise;
  modelPromise=(async()=>{
-   setMessage('Loading the local writing model. First download is around 400 MB; it is cached by your browser.');
-   $('outputMeta').textContent='LOADING LOCAL MODEL…';
+   setMessage('Preparing the local model. First download is larger (around 1 GB) and may take a few minutes.');
+   $('outputMeta').textContent='DOWNLOADING LOCAL AI…';
    const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
    env.allowLocalModels=false;env.useBrowserCache=true;
-   const progress=(p)=>{if(p.status==='progress'&&p.total)setMessage('Downloading local model: '+Math.round(p.progress||0)+'%');else if(p.status==='ready')setMessage('Local model ready.')};
-   try { generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress}); }
-   catch(webgpuError){setMessage('WebGPU unavailable; loading the slower CPU version…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress});}
-   $('outputMeta').textContent='LOCAL MODEL / READY';setMessage('Local AI ready in your browser. No API key required.');return generator;
+   let lastProgress=-1;
+   const progress=p=>{if(p.status==='progress'&&typeof p.progress==='number'){const pct=Math.max(0,Math.min(100,Math.round(p.progress)));if(pct!==lastProgress){lastProgress=pct;setMessage('Downloading local AI: '+pct+'%');}}};
+   try {generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress});}
+   catch(e){console.warn('WebGPU model load failed; trying WASM CPU.',e);setMessage('This browser cannot run the GPU version. Trying the slower CPU version…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress});}
+   $('outputMeta').textContent='LOCAL AI / READY';
+   return generator;
  })().catch(err=>{modelPromise=null;generator=null;throw err});
  return modelPromise;
 }
 $('improveBtn').addEventListener('click',async()=>{
- const source=$('source').value.trim();if(!source){$('source').focus();setMessage('Add a draft first.');return}
- const btn=$('improveBtn');btn.disabled=true;btn.textContent='Loading…';$('outputMeta').textContent='LOCAL MODEL / WORKING';
+ const source=$('source').value.trim();
+ if(!source){$('source').focus();setMessage('Add a draft first.');return}
+ if(source.length>12000){setMessage('Keep your draft under 12,000 characters for reliable local generation.',true);return}
+ const btn=$('improveBtn');btn.disabled=true;btn.textContent='Loading…';$('outputMeta').textContent='LOCAL AI / WORKING';
  try{
-  const model=await loadModel();btn.textContent='Enhancing…';setMessage('Writing your master copy locally…');
-  const prompt='You are an exceptional advertising copywriter and creative director. Rewrite the draft into a clear, distinctive, memorable master copy. Preserve its meaning, facts, and intent. Be concise, specific, human, and creatively sharp. Avoid clichés, generic marketing filler, invented claims, and explanations. Keep the original language. Return only the finished copy.\\n\\nDRAFT:\\n'+source;
-  const result=await model([{role:'system',content:'You are an exceptional advertising copywriter. Output only the final copy.'},{role:'user',content:prompt}],{max_new_tokens:350,temperature:0.75,do_sample:true,return_full_text:false});
+  const model=await loadModel();btn.textContent='Enhancing…';setMessage('Rewriting locally on this device…');
+  const direction=directions[$('direction')?.value]||directions.balanced;
+  const prompt='TASK: Rewrite the draft as finished copy.\n\nCREATIVE DIRECTION: '+direction+'\n\nRULES:\n- Preserve the original meaning, factual details, names, and intent. Never invent proof, numbers, offers, or claims.\n- Keep the original language.\n- Prefer concrete, specific words over clichés and filler.\n- Keep approximately the same length unless the direction calls for a shorter version.\n- Return only the rewritten copy, with no preamble, labels, analysis, or quotation marks.\n\nDRAFT:\n'+source+'\n\nFINISHED COPY:';
+  const result=await model([{role:'system',content:'You are a senior creative copywriter. Your job is to improve real copy, not to explain how you improved it. Follow the user’s facts exactly. Output only the final copy.'},{role:'user',content:prompt}],{max_new_tokens:450,temperature:0.65,do_sample:true,return_full_text:false});
   const generated=result?.[0]?.generated_text;
-  const output=typeof generated==='string'?generated:generated?.find?.(m=>m.role==='assistant')?.content;
+  let output=typeof generated==='string'?generated:generated?.find?.(m=>m.role==='assistant')?.content;
   if(!output?.trim())throw new Error('The local model returned an empty answer.');
-  $('output').value=output.trim();$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage('Master copy ready. Generated locally in your browser.');updateCounts();
- }catch(e){console.error(e);$('outputMeta').textContent='LOCAL MODEL / ERROR';setMessage('Local AI could not start: '+(e.message||'Please reload and try again.'),true)}
+  output=output.trim().replace(/^(FINISHED COPY:|Here is the rewritten copy:|Rewritten copy:)\s*/i,'').replace(/^["“]|["”]$/g,'').trim();
+  $('output').value=output;$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage('Master copy ready · generated on your device.');updateCounts();
+ }catch(e){console.error(e);$('outputMeta').textContent='LOCAL AI / ERROR';setMessage('Could not run local AI: '+(e.message||'Reload the page and try again.'),true)}
  finally{btn.disabled=false;btn.textContent='Enhance ↗'}
 });
 updateCounts();$('outputMeta').textContent='LOCAL AI / NOT LOADED';
-setMessage('Local AI runs in your browser. The model downloads on first use; no API key or hosted AI account is needed.');
+setMessage('Private, on-device AI. The model downloads once and is cached by your browser. Choose a creative direction before enhancing.');
 </script></body></html>
