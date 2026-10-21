@@ -37,7 +37,7 @@ function extractExamples(rows){const out=[];for(const item of rows){const r=item
 async function loadExamples(){
  if(examplesPromise)return examplesPromise;
  examplesPromise=(async()=>{
-  try{const cached=await cachedExamples();if(Array.isArray(cached)&&cached.length>=900){setMessage('Loaded '+cached.length+' licensed copywriting examples from this browser’s cache.');return cached}}catch(e){console.warn('Example cache unavailable; will use network cache.',e)}
+  try{const cached=await cachedExamples();if(Array.isArray(cached)&&cached.length>=100){setMessage('Loaded '+cached.length+' licensed copywriting examples from this browser’s cache.');return cached}}catch(e){console.warn('Example cache unavailable; will use network cache.',e)}
   const all=[];let cursor=0;
   while(cursor<EXAMPLE_COUNT){
    const length=Math.min(BATCH_SIZE,EXAMPLE_COUNT-cursor);
@@ -52,7 +52,7 @@ async function loadExamples(){
   }
   const unique=[...new Map(all.map(x=>[x.prompt+'\n'+x.copy,x])).values()].slice(0,EXAMPLE_COUNT);
   if(unique.length<100)throw new Error('Only '+unique.length+' usable examples were retrieved; not enough to build the library.');
-  try{await saveExamples(unique)}catch(e){console.warn('Could not persist the example library in IndexedDB.',e)}
+  try{await saveExamples(unique);const verified=await cachedExamples();if(!Array.isArray(verified)||verified.length!==unique.length)throw new Error('Cache verification failed')}catch(e){console.warn('Could not persist the example library in IndexedDB.',e)}
   setMessage('Example library ready: '+unique.length+' licensed examples cached on this device.');
   return unique;
  })().catch(err=>{examplesPromise=null;throw err});
@@ -71,7 +71,7 @@ async function loadModel(){
  if(generator)return generator;if(modelPromise)return modelPromise;
  modelPromise=(async()=>{
   setMessage('Preparing the local model. First download is larger (around 1 GB) and may take a few minutes.');$('outputMeta').textContent='LOADING LOCAL AI…';
-  const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;
+  const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;env.useCustomCache=true;
   let lastProgress=-1;const progress=p=>{if(p.status==='progress'&&typeof p.progress==='number'){const pct=Math.max(0,Math.min(100,Math.round(p.progress)));if(pct!==lastProgress){lastProgress=pct;setMessage('Downloading local AI model: '+pct+'%');}}};
   try{generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress})}
   catch(e){console.warn('WebGPU model load failed; trying WASM CPU.',e);setMessage('Trying the slower CPU version of local AI…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress})}
@@ -97,5 +97,5 @@ $('improveBtn').addEventListener('click',async()=>{
  finally{btn.disabled=false;btn.textContent='Enhance ↗'}
 });
 updateCounts();$('outputMeta').textContent='LOCAL AI / NOT LOADED';
-setMessage('On-device AI with a local-cached library of 1,000 licensed marketing examples. First use downloads the model and example library.');
+setMessage('On-device AI with a local-cached library of 1,000 licensed marketing examples. First use downloads the model and example library; both are cached for later visits.');
 </script></body></html>
