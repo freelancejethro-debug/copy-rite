@@ -13,7 +13,7 @@
 <script type="module">
 const $=id=>document.getElementById(id);
 let expanded=false, generator=null, modelPromise=null, examplesPromise=null;
-const MODEL='onnx-community/Qwen2.5-1.5B-Instruct';
+const MODEL='onnx-community/Qwen2.5-0.5B-Instruct';
 const DATASET='suehuynh/marketing-instruct-13k';
 const EXAMPLE_COUNT=1000, BATCH_SIZE=100;
 const directions={
@@ -73,8 +73,19 @@ async function loadModel(){
   setMessage('Preparing the local model. First download is larger (around 1 GB) and may take a few minutes.');$('outputMeta').textContent='LOADING LOCAL AI…';
   const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;env.useCustomCache=true;
   let lastProgress=-1;const progress=p=>{if(p.status==='progress'&&typeof p.progress==='number'){const pct=Math.max(0,Math.min(100,Math.round(p.progress)));if(pct!==lastProgress){lastProgress=pct;setMessage('Downloading local AI model: '+pct+'%');}}};
-  try{generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress})}
-  catch(e){console.warn('WebGPU model load failed; trying CPU inference.',e);setMessage('GPU loading failed. Trying the slower CPU version…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',progress_callback:progress})}
+  try{
+   generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress});
+  }catch(gpuError){
+   console.warn('WebGPU load failed; retrying with WASM CPU.',gpuError);
+   setMessage('GPU unavailable. Loading the smaller local model on CPU…');
+   try{
+    generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress});
+   }catch(cpuError){
+    console.error('Local model failed on both WebGPU and WASM.',{gpuError,cpuError});
+    const detail=cpuError?.message||gpuError?.message||'Unknown model loading error';
+    throw new Error('Local AI could not load: '+detail);
+   }
+  }
   $('outputMeta').textContent='LOCAL AI / READY';return generator;
  })().catch(err=>{modelPromise=null;generator=null;throw err});return modelPromise;
 }
