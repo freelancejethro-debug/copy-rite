@@ -1,4 +1,4 @@
-const MODEL = "inclusionai/ling-3.0-flash-sante-free";
+const MODEL = "minimax/minimax-m3.1-flashFree";
 const GATEWAY = "https://ai-gateway.vercel.sh/v1/chat/completions";
 
 function json(res, status, body) {
@@ -40,20 +40,20 @@ async function generate(prompt, token) {
 
 module.exports = async (req, res) => {
   if (req.method === "GET") {
-    const ready = Boolean(process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY);
+    const ready = Boolean(process.env.AI_GATEWAY_API_KEY);
     return json(res, 200, {
       ready,
       model: MODEL,
       message: ready
         ? "Hosted AI is configured."
-        : "AI Gateway authentication is not available. Enable Vercel OIDC for this project or set AI_GATEWAY_API_KEY."
+        : "AI Gateway authentication is not available. Set AI_GATEWAY_API_KEY in Vercel Environment Variables."
     });
   }
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
     return json(res, 405, { error: "Method not allowed." });
   }
-  const token = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
+  const token = process.env.AI_GATEWAY_API_KEY;
   if (!token) {
     return json(res, 503, {
       error: "The app is deployed, but hosted AI authentication is not configured yet. Enable Vercel OIDC for the project or add AI_GATEWAY_API_KEY in Vercel Environment Variables."
