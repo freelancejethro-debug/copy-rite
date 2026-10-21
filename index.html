@@ -71,7 +71,7 @@ async function loadModel(){
  if(generator)return generator;if(modelPromise)return modelPromise;
  modelPromise=(async()=>{
   setMessage('Preparing the local model. First download is larger (around 1 GB) and may take a few minutes.');$('outputMeta').textContent='LOADING LOCAL AI…';
-  const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;env.useCustomCache=true;
+  const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;
   let lastProgress=-1;const progress=p=>{if(p.status==='progress'&&typeof p.progress==='number'){const pct=Math.max(0,Math.min(100,Math.round(p.progress)));if(pct!==lastProgress){lastProgress=pct;setMessage('Downloading local AI model: '+pct+'%');}}};
   try{
    generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress});
