@@ -10,15 +10,44 @@
 <div class="column draft"><h2 class="label">Draft<span>\</span></h2><div class="folder"><textarea id="source" spellcheck="true" aria-label="Draft copy" placeholder="Type your rough copy here…"></textarea><div class="folderfoot"><span id="sourceCount">0 WORDS</span><button class="plainbtn" id="clearBtn">Clear</button></div></div><div class="enhance"><button class="primary" id="improveBtn">Enhance ↗</button></div></div>
 <div class="column result" id="resultColumn"><h2 class="label">Master Copy<span>\</span></h2><div class="folder"><textarea id="output" aria-label="Master copy" placeholder="Your enhanced copy will appear here…" readonly></textarea><button class="expand" id="expandBtn">[Expand\]</button><div class="folderfoot"><span id="outputMeta">MASTER COPY / READY</span><div class="resulttools"><span id="outputCount">0 WORDS</span><button class="plainbtn" id="copyBtn">Copy</button></div></div></div><p id="message" class="message" aria-live="polite"></p></div>
 </section><footer class="below"><span>[CR/] — Copy Rite</span><span>Draft → Master Copy</span><span>Minimal tools. Better words.</span></footer></main>
-<script>
-const $=id=>document.getElementById(id);let expanded=false;
-function count(s){return(s.trim().match(/\S+/g)||[]).length}
+<script type="module">
+const $=id=>document.getElementById(id);let expanded=false, generator=null, modelPromise=null;
+const MODEL='onnx-community/Qwen2.5-0.5B-Instruct';
+function count(s){return(s.trim().match(/\\S+/g)||[]).length}
 function updateCounts(){$('sourceCount').textContent=count($('source').value)+' WORDS';$('outputCount').textContent=count($('output').value)+' WORDS'}
+function setMessage(text,error=false){$('message').textContent=text;$('message').classList.toggle('error',error)}
 $('source').addEventListener('input',updateCounts);
-$('clearBtn').addEventListener('click',()=>{$('source').value='';updateCounts();$('source').focus();$('message').textContent=''});
-$('expandBtn').addEventListener('click',()=>{expanded=!expanded;$('resultColumn').classList.toggle('expanded',expanded);$('expandBtn').textContent=expanded?'[Close ×]':'[Expand\\]';if(expanded)$('output').focus()});
-$('copyBtn').addEventListener('click',async()=>{if(!$('output').value){$('message').textContent='Nothing to copy yet.';return}try{await navigator.clipboard.writeText($('output').value);$('message').textContent='Copied to clipboard.'}catch(e){$('output').select();document.execCommand('copy');$('message').textContent='Copied to clipboard.'}});
-$('improveBtn').addEventListener('click',async()=>{const source=$('source').value.trim();if(!source){$('source').focus();$('message').textContent='Add a draft first.';return}const btn=$('improveBtn');btn.disabled=true;btn.textContent='Enhancing…';$('message').innerHTML='<span class="loading"></span>Finding the master copy';$('outputMeta').textContent='WRITING…';try{const prompt='You are a world-class advertising copywriter. Improve the supplied rough copy into a clear, distinctive and memorable master copy. Preserve the core meaning, factual claims, and intent. Be concise, specific, human and creatively sharp. Avoid generic marketing filler, clichés, invented claims, and overexplaining. Keep the original language unless there is a clear reason to improve it. Return only the final copy, with no commentary.\n\nROUGH COPY:\n'+source;const r=await fetch('/api/rewrite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source,mainPrompt:prompt,prompts:[prompt+'\nMake it concise and confident.',prompt+'\nFind a more surprising creative angle.',prompt+'\nMake it more emotionally engaging and human.']})});const d=await r.json();if(!r.ok)throw Error(d.error||'Could not generate copy.');$('output').value=d.main;$('outputMeta').textContent='MASTER COPY / ENHANCED';$('message').textContent='Master copy ready.';updateCounts()}catch(e){$('message').textContent=e.message;$('message').classList.add('error');$('outputMeta').textContent='MASTER COPY / CHECK CONNECTION'}finally{btn.disabled=false;btn.textContent='Enhance ↗'}});
-updateCounts();
-fetch('/api/rewrite').then(r=>r.json()).then(d=>{if(!d.ready)$('message').textContent=d.message||'Hosted AI authentication needs setup.'}).catch(()=>{});
+$('clearBtn').addEventListener('click',()=>{$('source').value='';updateCounts();$('source').focus();setMessage('')});
+$('expandBtn').addEventListener('click',()=>{expanded=!expanded;$('resultColumn').classList.toggle('expanded',expanded);$('expandBtn').textContent=expanded?'[Close ×]':'[Expand\\\\]';if(expanded)$('output').focus()});
+$('copyBtn').addEventListener('click',async()=>{if(!$('output').value){setMessage('Nothing to copy yet.');return}try{await navigator.clipboard.writeText($('output').value);setMessage('Copied to clipboard.')}catch(e){$('output').select();document.execCommand('copy');setMessage('Copied to clipboard.')}});
+async function loadModel(){
+ if(generator)return generator;if(modelPromise)return modelPromise;
+ modelPromise=(async()=>{
+   setMessage('Loading the local writing model. First download is around 400 MB; it is cached by your browser.');
+   $('outputMeta').textContent='LOADING LOCAL MODEL…';
+   const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+   env.allowLocalModels=false;env.useBrowserCache=true;
+   const progress=(p)=>{if(p.status==='progress'&&p.total)setMessage('Downloading local model: '+Math.round(p.progress||0)+'%');else if(p.status==='ready')setMessage('Local model ready.')};
+   try { generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress}); }
+   catch(webgpuError){setMessage('WebGPU unavailable; loading the slower CPU version…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress});}
+   $('outputMeta').textContent='LOCAL MODEL / READY';setMessage('Local AI ready in your browser. No API key required.');return generator;
+ })().catch(err=>{modelPromise=null;generator=null;throw err});
+ return modelPromise;
+}
+$('improveBtn').addEventListener('click',async()=>{
+ const source=$('source').value.trim();if(!source){$('source').focus();setMessage('Add a draft first.');return}
+ const btn=$('improveBtn');btn.disabled=true;btn.textContent='Loading…';$('outputMeta').textContent='LOCAL MODEL / WORKING';
+ try{
+  const model=await loadModel();btn.textContent='Enhancing…';setMessage('Writing your master copy locally…');
+  const prompt='You are an exceptional advertising copywriter and creative director. Rewrite the draft into a clear, distinctive, memorable master copy. Preserve its meaning, facts, and intent. Be concise, specific, human, and creatively sharp. Avoid clichés, generic marketing filler, invented claims, and explanations. Keep the original language. Return only the finished copy.\\n\\nDRAFT:\\n'+source;
+  const result=await model([{role:'system',content:'You are an exceptional advertising copywriter. Output only the final copy.'},{role:'user',content:prompt}],{max_new_tokens:350,temperature:0.75,do_sample:true,return_full_text:false});
+  const generated=result?.[0]?.generated_text;
+  const output=typeof generated==='string'?generated:generated?.find?.(m=>m.role==='assistant')?.content;
+  if(!output?.trim())throw new Error('The local model returned an empty answer.');
+  $('output').value=output.trim();$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage('Master copy ready. Generated locally in your browser.');updateCounts();
+ }catch(e){console.error(e);$('outputMeta').textContent='LOCAL MODEL / ERROR';setMessage('Local AI could not start: '+(e.message||'Please reload and try again.'),true)}
+ finally{btn.disabled=false;btn.textContent='Enhance ↗'}
+});
+updateCounts();$('outputMeta').textContent='LOCAL AI / NOT LOADED';
+setMessage('Local AI runs in your browser. The model downloads on first use; no API key or hosted AI account is needed.');
 </script></body></html>
