@@ -94,8 +94,9 @@ $('improveBtn').addEventListener('click',async()=>{
  const btn=$('improveBtn');btn.disabled=true;btn.textContent='Loading…';$('outputMeta').textContent='LOCAL AI / WORKING';
  try{
   const model=await loadModel();
-  let library=[];try{library=await loadExamples()}catch(datasetError){console.warn('Example library unavailable; continuing with local model only.',datasetError);setMessage('Example library unavailable. Continuing with the local model…')}
-  btn.textContent='Enhancing…';setMessage(library.length?'Selecting the closest creative references…':'Rewriting with the local model…');
+  let library=[];try{const cached=await cachedExamples();if(Array.isArray(cached)&&cached.length>=100)library=cached}catch(cacheError){console.warn('Could not read cached examples.',cacheError)}
+  if(!library.length){loadExamples().catch(datasetError=>console.warn('Background example-library download failed; local generation continues.',datasetError))}
+  btn.textContent='Enhancing…';setMessage(library.length?'Selecting the closest cached creative references…':'Writing with local AI while the reference library loads in the background…');
   const directionKey=$('direction')?.value||'balanced',direction=directions[directionKey]||directions.balanced;
   const refs=library.length?selectExamples(library,source,direction):[];
   const examples=refs.length?refs.map((x,i)=>'REFERENCE '+(i+1)+'\nBrief: '+x.prompt.slice(0,420)+'\nExample response: '+x.copy.slice(0,520)).join('\n\n'):'No retrieved examples available. Rely on your copywriting expertise.';
