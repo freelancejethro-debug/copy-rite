@@ -23,12 +23,12 @@ const directions={
  persuasive:'Make the benefit and reason to care more compelling without exaggerating or inventing claims.',
  human:'Make it sound more human, conversational, warm, and specific. Avoid corporate or AI-sounding language.'
 };
-function count(s){return(s.trim().match(/\\S+/g)||[]).length}
+function count(s){return(s.trim().match(/\S+/g)||[]).length}
 function updateCounts(){$('sourceCount').textContent=count($('source').value)+' WORDS';$('outputCount').textContent=count($('output').value)+' WORDS'}
 function setMessage(text,error=false){$('message').textContent=text;$('message').classList.toggle('error',error)}
 $('source').addEventListener('input',updateCounts);
 $('clearBtn').addEventListener('click',()=>{$('source').value='';updateCounts();$('source').focus();setMessage('')});
-$('expandBtn').addEventListener('click',()=>{expanded=!expanded;$('resultColumn').classList.toggle('expanded',expanded);$('expandBtn').textContent=expanded?'[Close ×]':'[Expand\\\\]';if(expanded)$('output').focus()});
+$('expandBtn').addEventListener('click',()=>{expanded=!expanded;$('resultColumn').classList.toggle('expanded',expanded);$('expandBtn').textContent=expanded?'[Close ×]':'[Expand\\]';if(expanded)$('output').focus()});
 $('copyBtn').addEventListener('click',async()=>{if(!$('output').value){setMessage('Nothing to copy yet.');return}try{await navigator.clipboard.writeText($('output').value);setMessage('Copied to clipboard.')}catch(e){$('output').select();document.execCommand('copy');setMessage('Copied to clipboard.')}});
 function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open('copy-rite-examples',1);req.onupgradeneeded=()=>req.result.createObjectStore('datasets');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function cachedExamples(){const db=await openDb();return new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readonly');const req=tx.objectStore('datasets').get(DATASET+':1000');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error)})}
@@ -50,7 +50,7 @@ async function loadExamples(){
    all.push(...extractExamples(data.rows));cursor+=data.rows.length;
    if(data.rows.length<length)break;
   }
-  const unique=[...new Map(all.map(x=>[x.prompt+'\\n'+x.copy,x])).values()].slice(0,EXAMPLE_COUNT);
+  const unique=[...new Map(all.map(x=>[x.prompt+'\n'+x.copy,x])).values()].slice(0,EXAMPLE_COUNT);
   if(unique.length<100)throw new Error('Only '+unique.length+' usable examples were retrieved; not enough to build the library.');
   try{await saveExamples(unique)}catch(e){console.warn('Could not persist the example library in IndexedDB.',e)}
   setMessage('Example library ready: '+unique.length+' licensed examples cached on this device.');
@@ -86,12 +86,12 @@ $('improveBtn').addEventListener('click',async()=>{
   btn.textContent='Enhancing…';setMessage('Selecting the closest creative references…');
   const directionKey=$('direction')?.value||'balanced',direction=directions[directionKey]||directions.balanced;
   const refs=selectExamples(library,source,direction);
-  const examples=refs.map((x,i)=>'REFERENCE '+(i+1)+'\\nBrief: '+x.prompt.slice(0,420)+'\\nExample response: '+x.copy.slice(0,520)).join('\\n\\n');
-  const prompt='TASK: Rewrite the draft as finished copy.\\n\\nCREATIVE DIRECTION: '+direction+'\\n\\nREFERENCE EXAMPLES (for craft and technique only; do not copy phrases or brand names):\\n'+examples+'\\n\\nRULES:\\n- Use the examples to learn useful techniques such as specificity, rhythm, benefit framing, and distinctiveness; do not imitate a brand or reproduce an example.\\n- Preserve the original meaning, factual details, names, and intent. Never invent proof, numbers, offers, or claims.\\n- Keep the original language.\\n- Prefer concrete, specific words over clichés and filler.\\n- Keep approximately the same length unless the direction calls for a shorter version.\\n- Return only the rewritten copy, with no preamble, labels, analysis, or quotation marks.\\n\\nDRAFT:\\n'+source+'\\n\\nFINISHED COPY:';
+  const examples=refs.map((x,i)=>'REFERENCE '+(i+1)+'\nBrief: '+x.prompt.slice(0,420)+'\nExample response: '+x.copy.slice(0,520)).join('\n\n');
+  const prompt='TASK: Rewrite the draft as finished copy.\n\nCREATIVE DIRECTION: '+direction+'\n\nREFERENCE EXAMPLES (for craft and technique only; do not copy phrases or brand names):\n'+examples+'\n\nRULES:\n- Use the examples to learn useful techniques such as specificity, rhythm, benefit framing, and distinctiveness; do not imitate a brand or reproduce an example.\n- Preserve the original meaning, factual details, names, and intent. Never invent proof, numbers, offers, or claims.\n- Keep the original language.\n- Prefer concrete, specific words over clichés and filler.\n- Keep approximately the same length unless the direction calls for a shorter version.\n- Return only the rewritten copy, with no preamble, labels, analysis, or quotation marks.\n\nDRAFT:\n'+source+'\n\nFINISHED COPY:';
   const result=await model([{role:'system',content:'You are a senior creative copywriter. Improve real copy using relevant examples as craft references, never as text to copy. Follow the user’s facts exactly. Output only the final copy.'},{role:'user',content:prompt}],{max_new_tokens:450,temperature:0.65,do_sample:true,return_full_text:false});
   const generated=result?.[0]?.generated_text;let output=typeof generated==='string'?generated:generated?.find?.(m=>m.role==='assistant')?.content;
   if(!output?.trim())throw new Error('The local model returned an empty answer.');
-  output=output.trim().replace(/^(FINISHED COPY:|Here is the rewritten copy:|Rewritten copy:)\\s*/i,'').replace(/^["“]|["”]$/g,'').trim();
+  output=output.trim().replace(/^(FINISHED COPY:|Here is the rewritten copy:|Rewritten copy:)\s*/i,'').replace(/^["“]|["”]$/g,'').trim();
   $('output').value=output;$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage('Master copy ready · informed by '+library.length+' local-cached examples.');updateCounts();
  }catch(e){console.error(e);$('outputMeta').textContent='LOCAL AI / ERROR';setMessage('Could not enhance: '+(e.message||'Reload the page and try again.'),true)}
  finally{btn.disabled=false;btn.textContent='Enhance ↗'}
