@@ -74,7 +74,7 @@ async function loadModel(){
   const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');env.allowLocalModels=false;env.useBrowserCache=true;env.useCustomCache=true;
   let lastProgress=-1;const progress=p=>{if(p.status==='progress'&&typeof p.progress==='number'){const pct=Math.max(0,Math.min(100,Math.round(p.progress)));if(pct!==lastProgress){lastProgress=pct;setMessage('Downloading local AI model: '+pct+'%');}}};
   try{generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'webgpu',progress_callback:progress})}
-  catch(e){console.warn('WebGPU model load failed; trying WASM CPU.',e);setMessage('Trying the slower CPU version of local AI…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',device:'wasm',progress_callback:progress})}
+  catch(e){console.warn('WebGPU model load failed; trying CPU inference.',e);setMessage('GPU loading failed. Trying the slower CPU version…');generator=await pipeline('text-generation',MODEL,{dtype:'q4',progress_callback:progress})}
   $('outputMeta').textContent='LOCAL AI / READY';return generator;
  })().catch(err=>{modelPromise=null;generator=null;throw err});return modelPromise;
 }
@@ -82,17 +82,18 @@ $('improveBtn').addEventListener('click',async()=>{
  const source=$('source').value.trim();if(!source){$('source').focus();setMessage('Add a draft first.');return}if(source.length>12000){setMessage('Keep your draft under 12,000 characters for reliable local generation.',true);return}
  const btn=$('improveBtn');btn.disabled=true;btn.textContent='Loading…';$('outputMeta').textContent='LOCAL AI / WORKING';
  try{
-  const [model,library]=await Promise.all([loadModel(),loadExamples()]);
-  btn.textContent='Enhancing…';setMessage('Selecting the closest creative references…');
+  const model=await loadModel();
+  let library=[];try{library=await loadExamples()}catch(datasetError){console.warn('Example library unavailable; continuing with local model only.',datasetError);setMessage('Example library unavailable. Continuing with the local model…')}
+  btn.textContent='Enhancing…';setMessage(library.length?'Selecting the closest creative references…':'Rewriting with the local model…');
   const directionKey=$('direction')?.value||'balanced',direction=directions[directionKey]||directions.balanced;
-  const refs=selectExamples(library,source,direction);
-  const examples=refs.map((x,i)=>'REFERENCE '+(i+1)+'\nBrief: '+x.prompt.slice(0,420)+'\nExample response: '+x.copy.slice(0,520)).join('\n\n');
+  const refs=library.length?selectExamples(library,source,direction):[];
+  const examples=refs.length?refs.map((x,i)=>'REFERENCE '+(i+1)+'\nBrief: '+x.prompt.slice(0,420)+'\nExample response: '+x.copy.slice(0,520)).join('\n\n'):'No retrieved examples available. Rely on your copywriting expertise.';
   const prompt='TASK: Rewrite the draft as finished copy.\n\nCREATIVE DIRECTION: '+direction+'\n\nREFERENCE EXAMPLES (for craft and technique only; do not copy phrases or brand names):\n'+examples+'\n\nRULES:\n- Use the examples to learn useful techniques such as specificity, rhythm, benefit framing, and distinctiveness; do not imitate a brand or reproduce an example.\n- Preserve the original meaning, factual details, names, and intent. Never invent proof, numbers, offers, or claims.\n- Keep the original language.\n- Prefer concrete, specific words over clichés and filler.\n- Keep approximately the same length unless the direction calls for a shorter version.\n- Return only the rewritten copy, with no preamble, labels, analysis, or quotation marks.\n\nDRAFT:\n'+source+'\n\nFINISHED COPY:';
   const result=await model([{role:'system',content:'You are a senior creative copywriter. Improve real copy using relevant examples as craft references, never as text to copy. Follow the user’s facts exactly. Output only the final copy.'},{role:'user',content:prompt}],{max_new_tokens:450,temperature:0.65,do_sample:true,return_full_text:false});
   const generated=result?.[0]?.generated_text;let output=typeof generated==='string'?generated:generated?.find?.(m=>m.role==='assistant')?.content;
   if(!output?.trim())throw new Error('The local model returned an empty answer.');
   output=output.trim().replace(/^(FINISHED COPY:|Here is the rewritten copy:|Rewritten copy:)\s*/i,'').replace(/^["“]|["”]$/g,'').trim();
-  $('output').value=output;$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage('Master copy ready · informed by '+library.length+' local-cached examples.');updateCounts();
+  $('output').value=output;$('outputMeta').textContent='MASTER COPY / LOCAL AI';setMessage(library.length?'Master copy ready · informed by '+library.length+' cached examples.':'Master copy ready · generated locally without the example library.');updateCounts();
  }catch(e){console.error(e);$('outputMeta').textContent='LOCAL AI / ERROR';setMessage('Could not enhance: '+(e.message||'Reload the page and try again.'),true)}
  finally{btn.disabled=false;btn.textContent='Enhance ↗'}
 });
